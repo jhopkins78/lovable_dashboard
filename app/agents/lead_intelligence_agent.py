@@ -152,4 +152,12 @@ def analyze_lead(payload):
     Returns:
         Dict: A dictionary containing the status and echoed payload.
     """
-    return {"status": "ok", "echo": payload}
+    print("RAW PAYLOAD RECEIVED:", payload)
+    
+    input_data = {}
+    if isinstance(payload, dict):
+        input_data = payload
+    else:
+        input_data = {"raw_input": str(payload)}
+
+    return {"status": "ok", "echo": input_data}

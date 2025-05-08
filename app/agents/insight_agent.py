@@ -92,7 +92,14 @@ def run_insight_agent(payload):
     Returns:
         dict: A dictionary containing the status and echoed input.
     """
-    input_text = payload.get("input", "")
+    print("RAW PAYLOAD RECEIVED:", payload)
+    
+    input_text = ""
+    if isinstance(payload, dict):
+        input_text = payload.get("input", "")
+    else:
+        input_text = str(payload)
+
     return {
         "status": "ok",
         "echo": input_text

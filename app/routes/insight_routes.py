@@ -22,5 +22,4 @@ async def generate_insight(payload: dict):
     Generate insights for a lead using the insight agent.
     """
     from app.agents.insight_agent import run_insight_agent
-    result = run_insight_agent(payload)
-    return result
+    return run_insight_agent(payload)
