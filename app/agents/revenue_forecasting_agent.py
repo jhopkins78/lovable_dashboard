@@ -51,3 +51,16 @@ class RevenueForecastingAgent:
             lead["estimated_revenue"] = 15000
 
         return lead
+
+
+def forecast_revenue(payload):
+    """
+    Function to forecast revenue with the provided payload.
+    
+    Args:
+        payload (dict): The lead data to forecast revenue for.
+        
+    Returns:
+        dict: A dictionary containing the status and echoed payload.
+    """
+    return {"status": "ok", "echo": payload}

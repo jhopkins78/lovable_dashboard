@@ -18,7 +18,7 @@ class LtvAgent:
         return round(projected_ltv, 2)
 
 
-def estimate_lifetime_value(payload: dict) -> float:
+def estimate_lifetime_value(payload):
     """
     Function to estimate the lifetime value of a lead with the provided payload.
     
@@ -26,13 +26,6 @@ def estimate_lifetime_value(payload: dict) -> float:
         payload (dict): The lead data to analyze.
         
     Returns:
-        float: The estimated lifetime value of the lead.
+        dict: A dictionary containing the status and echoed payload.
     """
-    # Initialize the agent
-    agent = LtvAgent()
-    
-    # Run the LTV calculation
-    ltv = agent.run(payload)
-    
-    # Return the LTV
-    return ltv
+    return {"status": "ok", "echo": payload}

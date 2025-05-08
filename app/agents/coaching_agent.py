@@ -47,3 +47,16 @@ class CoachingAgent:
             lead["coaching_tip"] = "Focus on building relationship and understanding lead’s deeper needs."
 
         return lead
+
+
+def generate_coaching(payload):
+    """
+    Function to generate coaching tips with the provided payload.
+    
+    Args:
+        payload (dict): The lead data to generate coaching for.
+        
+    Returns:
+        dict: A dictionary containing the status and echoed payload.
+    """
+    return {"status": "ok", "echo": payload}

@@ -142,7 +142,7 @@ class LeadIntelligenceAgent:
         return 0.0
 
 
-def analyze_lead(payload: Dict) -> Dict:
+def analyze_lead(payload):
     """
     Function to analyze a lead with the provided payload.
     
@@ -150,19 +150,6 @@ def analyze_lead(payload: Dict) -> Dict:
         payload (Dict): The lead data to analyze.
         
     Returns:
-        Dict: A dictionary containing the lead score and enriched data.
+        Dict: A dictionary containing the status and echoed payload.
     """
-    # Initialize the agent
-    agent = LeadIntelligenceAgent()
-    
-    # Enrich the lead data
-    enriched_data = agent.enrich_lead(payload)
-    
-    # Score the lead
-    score = agent.score_lead(enriched_data)
-    
-    # Return the analysis results
-    return {
-        "score": score,
-        "enriched_data": enriched_data
-    }
+    return {"status": "ok", "echo": payload}

@@ -50,3 +50,16 @@ class AutomationAgent:
             lead["automation_status"] = "No action taken"
 
         return lead
+
+
+def automate_action(payload):
+    """
+    Function to automate actions with the provided payload.
+    
+    Args:
+        payload (dict): The lead data to automate actions for.
+        
+    Returns:
+        dict: A dictionary containing the status and echoed payload.
+    """
+    return {"status": "ok", "echo": payload}

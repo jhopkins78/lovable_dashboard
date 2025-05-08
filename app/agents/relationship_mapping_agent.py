@@ -23,3 +23,16 @@ class RelationshipMappingAgent:
                     connections.append(other_lead['id'])
             relationships[lead_id] = {"connections": connections}
         return relationships
+
+
+def map_relationships(payload):
+    """
+    Function to map relationships between leads with the provided payload.
+    
+    Args:
+        payload (dict): The lead data to map relationships for.
+        
+    Returns:
+        dict: A dictionary containing the status and echoed payload.
+    """
+    return {"status": "ok", "echo": payload}

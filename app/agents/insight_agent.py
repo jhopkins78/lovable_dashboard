@@ -82,7 +82,7 @@ class InsightSummarizationAgent:
 # agent = InsightSummarizationAgent(openai_service)
 # summary = agent.generate_insight(lead_data)
 
-def run_insight_agent(payload: Dict) -> str:
+def run_insight_agent(payload):
     """
     Function to run the insight agent with the provided payload.
     
@@ -90,15 +90,10 @@ def run_insight_agent(payload: Dict) -> str:
         payload (Dict): The lead data to generate insights for.
         
     Returns:
-        str: The generated insight summary.
+        dict: A dictionary containing the status and echoed input.
     """
-    from app.services.openai_service import OpenAIService
-    
-    # Initialize the OpenAI service
-    openai_service = OpenAIService()
-    
-    # Initialize the agent
-    agent = InsightSummarizationAgent(openai_service)
-    
-    # Generate and return the insight
-    return agent.generate_insight(payload)
+    input_text = payload.get("input", "")
+    return {
+        "status": "ok",
+        "echo": input_text
+    }

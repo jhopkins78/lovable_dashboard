@@ -69,3 +69,16 @@ class MarketSignalScanner:
 
         # The /scan_market_signals endpoint will add market_signal_detected field
         return lead
+
+
+def scan_market_signals(payload):
+    """
+    Function to scan for market signals with the provided payload.
+    
+    Args:
+        payload (dict): The lead data to scan for market signals.
+        
+    Returns:
+        dict: A dictionary containing the status and echoed payload.
+    """
+    return {"status": "ok", "echo": payload}

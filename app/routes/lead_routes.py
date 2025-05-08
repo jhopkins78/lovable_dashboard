@@ -23,7 +23,7 @@ async def analyze_lead(payload: dict):
     """
     from app.agents.lead_intelligence_agent import analyze_lead
     result = analyze_lead(payload)
-    return {"analysis": result}
+    return result
 
 @router.post("/ltv")
 async def estimate_ltv(payload: dict):
@@ -32,4 +32,4 @@ async def estimate_ltv(payload: dict):
     """
     from app.agents.ltv_agent import estimate_lifetime_value
     result = estimate_lifetime_value(payload)
-    return {"ltv": result}
+    return result

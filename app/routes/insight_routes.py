@@ -23,4 +23,4 @@ async def generate_insight(payload: dict):
     """
     from app.agents.insight_agent import run_insight_agent
     result = run_insight_agent(payload)
-    return {"insight": result}
+    return result
