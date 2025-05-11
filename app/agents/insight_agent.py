@@ -82,6 +82,10 @@ class InsightSummarizationAgent:
 # agent = InsightSummarizationAgent(openai_service)
 # summary = agent.generate_insight(lead_data)
 
+import openai
+import os
+from app.services.supabase_service import log_agent_activity
+
 def run_insight_agent(payload):
     """
     Function to run the insight agent with the provided payload.
@@ -90,7 +94,7 @@ def run_insight_agent(payload):
         payload (Dict): The lead data to generate insights for.
         
     Returns:
-        dict: A dictionary containing the status and echoed input.
+        dict: A dictionary containing the status, echoed input, insight, and optional error.
     """
     print("RAW PAYLOAD RECEIVED:", payload)
     
@@ -100,7 +104,38 @@ def run_insight_agent(payload):
     else:
         input_text = str(payload)
 
-    return {
+    # Default fallback response
+    response = {
         "status": "ok",
-        "echo": input_text
+        "echo": input_text,
+        "insight": "No insight generated. GPT logic not executed."
     }
+
+    try:
+        openai.api_key = os.getenv("OPENAI_API_KEY")
+        if not openai.api_key:
+            raise ValueError("Missing OPENAI_API_KEY environment variable")
+
+        print("Sending to OpenAI...")
+        gpt_response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a business analyst. Generate actionable insights from user-provided business data or statements."},
+                {"role": "user", "content": input_text}
+            ],
+            max_tokens=300
+        )
+
+        generated_text = gpt_response["choices"][0]["message"]["content"]
+        print("OpenAI returned:", generated_text)
+
+        response["insight"] = generated_text
+    except Exception as e:
+        print("Insight Agent error:", str(e))
+        response["insight"] = "Insight generation failed."
+        response["error"] = str(e)
+
+    # Log to Supabase
+    log_agent_activity("insight", payload, response)
+    
+    return response

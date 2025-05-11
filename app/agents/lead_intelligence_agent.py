@@ -142,6 +142,10 @@ class LeadIntelligenceAgent:
         return 0.0
 
 
+import openai
+import os
+from app.services.supabase_service import log_agent_activity
+
 def analyze_lead(payload):
     """
     Function to analyze a lead with the provided payload.
@@ -150,14 +154,46 @@ def analyze_lead(payload):
         payload (Dict): The lead data to analyze.
         
     Returns:
-        Dict: A dictionary containing the status and echoed payload.
+        Dict: A dictionary containing the status, echoed payload, analysis, and optional error.
     """
-    print("RAW PAYLOAD RECEIVED:", payload)
+    print("LEAD PAYLOAD:", payload)
     
     input_data = {}
     if isinstance(payload, dict):
         input_data = payload
     else:
         input_data = {"raw_input": str(payload)}
+    
+    response = {
+        "status": "ok",
+        "echo": input_data,
+        "analysis": "No analysis generated.",
+        "error": ""
+    }
+    
+    try:
+        openai.api_key = os.getenv("OPENAI_API_KEY")
+        if not openai.api_key:
+            raise ValueError("Missing OPENAI_API_KEY")
 
-    return {"status": "ok", "echo": input_data}
+        print("Sending lead data to OpenAI...")
+        summary = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a lead scoring assistant. Use provided lead data to generate a brief assessment and lead quality score."},
+                {"role": "user", "content": str(input_data)}
+            ],
+            max_tokens=300
+        )
+        
+        generated = summary["choices"][0]["message"]["content"]
+        print("OpenAI returned lead analysis:", generated)
+        response["analysis"] = generated
+    except Exception as e:
+        print("Lead Intelligence Error:", str(e))
+        response["error"] = str(e)
+
+    # Log to Supabase
+    log_agent_activity("lead_score", payload, response)
+    
+    return response

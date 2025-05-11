@@ -18,6 +18,10 @@ class LtvAgent:
         return round(projected_ltv, 2)
 
 
+import openai
+import os
+from app.services.supabase_service import log_agent_activity
+
 def estimate_lifetime_value(payload):
     """
     Function to estimate the lifetime value of a lead with the provided payload.
@@ -26,14 +30,46 @@ def estimate_lifetime_value(payload):
         payload (dict): The lead data to analyze.
         
     Returns:
-        dict: A dictionary containing the status and echoed payload.
+        dict: A dictionary containing the status, echoed payload, ltv_estimate, and optional error.
     """
-    print("RAW PAYLOAD RECEIVED:", payload)
+    print("LTV PAYLOAD:", payload)
     
     input_data = {}
     if isinstance(payload, dict):
         input_data = payload
     else:
         input_data = {"raw_input": str(payload)}
+    
+    response = {
+        "status": "ok",
+        "echo": input_data,
+        "ltv_estimate": "No LTV estimate generated.",
+        "error": ""
+    }
+    
+    try:
+        openai.api_key = os.getenv("OPENAI_API_KEY")
+        if not openai.api_key:
+            raise ValueError("Missing OPENAI_API_KEY")
 
-    return {"status": "ok", "echo": input_data}
+        print("Sending lead data to OpenAI for LTV estimation...")
+        summary = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a financial forecasting assistant. Analyze the provided lead data to estimate lifetime value (LTV) based on deal amount, frequency, contract length, and other relevant factors."},
+                {"role": "user", "content": str(input_data)}
+            ],
+            max_tokens=300
+        )
+        
+        generated = summary["choices"][0]["message"]["content"]
+        print("OpenAI returned LTV estimate:", generated)
+        response["ltv_estimate"] = generated
+    except Exception as e:
+        print("LTV Agent Error:", str(e))
+        response["error"] = str(e)
+
+    # Log to Supabase
+    log_agent_activity("ltv", payload, response)
+    
+    return response
