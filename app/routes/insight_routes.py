@@ -4,7 +4,8 @@ insight_routes.py
 Defines insight generation API routes.
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from app.models.schemas import InsightRequest, InsightResponse
 
 router = APIRouter()
 
@@ -13,13 +14,15 @@ async def get_insights():
     """
     Skeleton endpoint to generate insights.
     """
-    # Implement logic to generate insights here
     return {"message": "Get insights endpoint"}
 
-@router.post("/generate")
-async def generate_insight(payload: dict):
+@router.post("/insights/generate", response_model=InsightResponse)
+async def generate_insight(payload: InsightRequest):
     """
     Generate insights for a lead using the insight agent.
     """
-    from app.agents.insight_agent import run_insight_agent
-    return run_insight_agent(payload)
+    try:
+        from app.agents.insight_agent import run_insight_agent
+        return run_insight_agent(payload.dict())
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

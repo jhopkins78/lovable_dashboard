@@ -4,30 +4,54 @@ lead_routes.py
 Defines lead management API routes.
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from app.models.schemas import (
+    LeadAnalysisRequest,
+    LeadAnalysisResponse,
+    LtvEstimateRequest,
+    LtvEstimateResponse,
+)
+from typing import List
 
 router = APIRouter()
 
-@router.get("/")
+@router.get("/get_leads", response_model=List[dict])
 async def get_leads():
     """
-    Skeleton endpoint to fetch leads.
+    Fetch all leads (placeholder).
     """
-    # Implement logic to fetch leads here
-    return {"message": "Get leads endpoint"}
+    try:
+        # Replace with actual DB/service call
+        return [
+            {
+                "id": 1,
+                "name": "John Doe",
+                "email": "john@example.com",
+                "risk_score": 0.2,
+                "projected_ltv": 12000.0,
+            }
+        ]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/analyze")
-async def analyze_lead(payload: dict):
+@router.post("/leads/analyze", response_model=LeadAnalysisResponse)
+async def analyze_lead(payload: LeadAnalysisRequest):
     """
     Analyze a lead using the lead intelligence agent.
     """
-    from app.agents.lead_intelligence_agent import analyze_lead
-    return analyze_lead(payload)
+    try:
+        from app.agents.lead_intelligence_agent import analyze_lead as agent_analyze_lead
+        return agent_analyze_lead(payload.dict())
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/ltv")
-async def estimate_ltv(payload: dict):
+@router.post("/leads/ltv", response_model=LtvEstimateResponse)
+async def estimate_ltv(payload: LtvEstimateRequest):
     """
     Estimate the lifetime value of a lead using the LTV agent.
     """
-    from app.agents.ltv_agent import estimate_lifetime_value
-    return estimate_lifetime_value(payload)
+    try:
+        from app.agents.ltv_agent import estimate_lifetime_value as agent_estimate_ltv
+        return agent_estimate_ltv(payload.dict())
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
