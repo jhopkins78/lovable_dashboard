@@ -1,10 +1,19 @@
 services:
   - type: web
-    name: samaritan-backend
+    name: lead-commander-backend
     env: python
     plan: free
-    branch: main
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port 10000
-    healthCheckPath: /
-    autoDeploy: true
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: PORT
+        value: 8000
+    healthCheckPath: /health
