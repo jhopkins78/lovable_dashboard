@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # Import routers (to be implemented in the routes package)
 from app.routes import auth_routes, lead_routes, insight_routes, utility_routes, connector_routes, webhook_routes
+from app.routes import dataset_routes
 
 app = FastAPI(
     title="Lead Commander Backend",
@@ -32,6 +33,7 @@ app.include_router(insight_routes.router, tags=["insights"])
 app.include_router(utility_routes.router, tags=["utility"])
 app.include_router(connector_routes.router, tags=["connector"])
 app.include_router(webhook_routes.router, tags=["webhook"])
+app.include_router(dataset_routes.router, tags=["datasets"])
 
 # Root endpoint for health check (optional, /health is also available)
 @app.get("/")

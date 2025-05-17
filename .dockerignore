@@ -1,0 +1,24 @@
+# Prevent sensitive files and unnecessary artifacts from being copied into the Docker image
+
+.env
+.env.*
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+.DS_Store
+*.log
+*.sqlite3
+*.db
+tests/
+*.md
+*.pdf
+*.png
+*.jpg
+*.jpeg
+
+# Optional: Exclude local development files
+.vscode/
+.idea/
+*.swp

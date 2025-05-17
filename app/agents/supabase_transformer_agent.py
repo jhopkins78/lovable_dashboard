@@ -10,6 +10,9 @@ Agent to dynamically create tables in Supabase based on the schema of enriched J
 - Supports optional table_overrides.yaml and "target_table" tag
 """
 
+from dotenv import load_dotenv
+load_dotenv()
+
 import os
 import json
 import csv
