@@ -4,6 +4,7 @@ main.py
 Entry point for the FastAPI application. Initializes the app and includes API routers.
 """
 
+from app import config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 

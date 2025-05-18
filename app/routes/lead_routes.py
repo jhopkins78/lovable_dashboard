@@ -135,15 +135,29 @@ async def predict_lead(payload: LeadPredictRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+import traceback
+
 @router.post("/leads/analyze", response_model=LeadAnalysisResponse)
 async def analyze_lead(payload: LeadAnalysisRequest):
     """
     Analyze a lead using the lead intelligence agent.
     """
+    print(f"Incoming /leads/analyze request: {payload}")
     try:
+        import os
+        openai_api_key = os.getenv("OPENAI_API_KEY")
+        if not openai_api_key:
+            print("Warning: OPENAI_API_KEY is missing or empty.")
         from app.agents.lead_intelligence_agent import analyze_lead as agent_analyze_lead
-        return agent_analyze_lead(payload.dict())
+        try:
+            return agent_analyze_lead(payload.dict())
+        except Exception as gpt_exc:
+            print("Exception during GPT call in /leads/analyze:")
+            traceback.print_exc()
+            raise
     except Exception as e:
+        print("Exception in /leads/analyze:", e)
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/leads/ltv", response_model=LtvEstimateResponse)
