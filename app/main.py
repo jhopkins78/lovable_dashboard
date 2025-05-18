@@ -42,4 +42,11 @@ async def root():
     """
     Health check endpoint.
     """
-    return {"message": "Lead Commander Backend is running."}
+    return {"status": "OK"}
+
+@app.get("/health")
+async def health_check():
+    """
+    Health check endpoint for Render.
+    """
+    return {"status": "healthy"}
