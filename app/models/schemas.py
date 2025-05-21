@@ -14,7 +14,11 @@ class InsightResponse(BaseModel):
 # --- Lead Analysis ---
 
 class LeadAnalysisRequest(BaseModel):
-    name: str
+    lead_name: str
+    email: str
+    job_title: str
+    intent: str
+    company: str
     title: str
     company: str
     email: str
