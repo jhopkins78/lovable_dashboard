@@ -5,8 +5,8 @@ Defines lead management API routes.
 """
 
 from fastapi import APIRouter, HTTPException
+from app.schemas.lead_schema import LeadAnalysisRequest
 from app.models.schemas import (
-    LeadAnalysisRequest,
     LeadAnalysisResponse,
     LtvEstimateRequest,
     LtvEstimateResponse,
@@ -137,7 +137,9 @@ async def predict_lead(payload: LeadPredictRequest):
 
 import traceback
 
-@router.post("/leads/analyze", response_model=LeadAnalysisResponse)
+import traceback
+
+@router.post("/leads/analyze")
 async def analyze_lead(payload: LeadAnalysisRequest):
     """
     Analyze a lead using the lead intelligence agent.
