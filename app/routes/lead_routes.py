@@ -152,7 +152,12 @@ async def analyze_lead(payload: LeadAnalysisRequest):
             print("Warning: OPENAI_API_KEY is missing or empty.")
         from app.agents.lead_intelligence_agent import analyze_lead as agent_analyze_lead
         try:
-            return agent_analyze_lead(payload.dict())
+            result = agent_analyze_lead(payload.dict())
+            # Ensure recommendations array is always present
+            if isinstance(result, dict):
+                if "recommendations" not in result or result["recommendations"] is None:
+                    result["recommendations"] = []
+            return result
         except Exception as gpt_exc:
             print("Exception during GPT call in /leads/analyze:")
             traceback.print_exc()
