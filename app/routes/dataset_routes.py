@@ -33,7 +33,6 @@ async def list_datasets():
 
 # Alias: GET /api/datasets and /api/datasets/ both return the same as /api/datasets/list
 @router.get("/")
-@router.get("")
 async def list_datasets_alias():
     print("Received request for /datasets (alias for /datasets/list)")
     return await list_datasets()
