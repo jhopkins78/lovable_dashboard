@@ -86,32 +86,59 @@ import openai
 import os
 from app.services.supabase_service import log_agent_activity
 
+def load_dataset_from_supabase(dataset_id):
+    """
+    Stub for loading a dataset from Supabase.
+    """
+    # For demonstration, return a dummy DataFrame for "demo"
+    import pandas as pd
+    if dataset_id == "demo":
+        return pd.DataFrame({
+            "name": ["Alice", "Bob", "Charlie"],
+            "age": [30, 25, 35],
+            "score": [88, 92, 85]
+        })
+    # In production, replace with real Supabase fetch
+    raise ValueError("Dataset not found")
+
 def run_insight_agent(payload):
     """
     Function to run the insight agent with the provided payload.
-    
-    Args:
-        payload (Dict): The lead data to generate insights for.
-        
-    Returns:
-        dict: A dictionary containing the status, echoed input, insight, and optional error.
+    Accepts: { "dataset_id": ..., "query": ... }
+    Loads the dataset, builds a prompt, and sends to GPT.
     """
     print("RAW PAYLOAD RECEIVED:", payload)
-    
-    input_text = ""
-    if isinstance(payload, dict):
-        input_text = payload.get("input", "")
-    else:
-        input_text = str(payload)
+    dataset_id = payload.get("dataset_id")
+    query = payload.get("query", "")
 
-    # Default fallback response
     response = {
         "status": "ok",
-        "echo": input_text,
+        "echo": query,
         "insight": "No insight generated. GPT logic not executed."
     }
 
     try:
+        # Load dataset
+        import pandas as pd
+        if not dataset_id:
+            raise ValueError("No dataset_id provided")
+        df = load_dataset_from_supabase(dataset_id)
+        print(f"Loaded dataset '{dataset_id}' with shape {df.shape}")
+
+        # Build context for GPT: columns and sample rows
+        columns = list(df.columns)
+        sample_rows = df.head(5).to_dict(orient="records")
+        context = (
+            f"Dataset columns: {columns}\n"
+            f"Sample rows: {sample_rows}\n"
+        )
+        prompt = (
+            f"You are a data analyst. Given the following dataset context and user query, "
+            f"analyze the data and answer the query as best as possible.\n\n"
+            f"{context}\n"
+            f"User query: {query}"
+        )
+
         openai.api_key = os.getenv("OPENAI_API_KEY")
         if not openai.api_key:
             raise ValueError("Missing OPENAI_API_KEY environment variable")
@@ -121,7 +148,7 @@ def run_insight_agent(payload):
             model="gpt-4",
             messages=[
                 {"role": "system", "content": "You are a business analyst. Generate actionable insights from user-provided business data or statements."},
-                {"role": "user", "content": input_text}
+                {"role": "user", "content": prompt}
             ],
             max_tokens=300
         )

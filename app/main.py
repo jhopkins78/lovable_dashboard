@@ -5,7 +5,7 @@ Entry point for the FastAPI application. Initializes the app and includes API ro
 """
 
 from app import config
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import routers (to be implemented in the routes package)
@@ -22,24 +22,28 @@ app = FastAPI(
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Or specify Lovable + Vercel domain(s)
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include routers from the routes package
-app.include_router(auth_routes.router, prefix="/auth", tags=["auth"])
-app.include_router(lead_routes.router, tags=["leads"])
-app.include_router(insight_routes.router, tags=["insights"])
-app.include_router(utility_routes.router, tags=["utility"])
-app.include_router(connector_routes.router, tags=["connector"])
-app.include_router(webhook_routes.router, tags=["webhook"])
-app.include_router(dataset_routes.router, tags=["datasets"])
-app.include_router(auto_analysis_routes.router, tags=["ml"])
-app.include_router(strategy_routes.router, tags=["strategy"])
-app.include_router(report_routes.router, tags=["reports"])
-app.include_router(forecast_routes.router, tags=["forecast"])
+# Create a main API router and include all sub-routers
+api_router = APIRouter()
+api_router.include_router(auth_routes.router, prefix="/auth", tags=["auth"])
+api_router.include_router(lead_routes.router, tags=["leads"])
+api_router.include_router(insight_routes.router, tags=["insights"])
+api_router.include_router(utility_routes.router, tags=["utility"])
+api_router.include_router(connector_routes.router, tags=["connector"])
+api_router.include_router(webhook_routes.router, tags=["webhook"])
+api_router.include_router(dataset_routes.router, tags=["datasets"])
+api_router.include_router(auto_analysis_routes.router, tags=["ml"])
+api_router.include_router(strategy_routes.router, tags=["strategy"])
+api_router.include_router(report_routes.router, tags=["reports"])
+api_router.include_router(forecast_routes.router, tags=["forecast"])
+
+# Mount the API router at /api
+app.include_router(api_router, prefix="/api")
 
 # Root endpoint for health check (optional, /health is also available)
 @app.get("/")
