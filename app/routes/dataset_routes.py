@@ -31,6 +31,12 @@ async def list_datasets():
     ]
     return {"datasets": datasets}
 
+# Alias: GET /api/datasets returns the same as /api/datasets/list
+@router.get("/")
+async def list_datasets_alias():
+    print("Received request for /datasets (alias for /datasets/list)")
+    return await list_datasets()
+
 @router.post("/datasets/upload_dataset")
 async def upload_dataset(file: UploadFile = File(...)):
     filename = os.path.splitext(file.filename)[0]
