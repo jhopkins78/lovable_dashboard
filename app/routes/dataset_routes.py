@@ -11,6 +11,26 @@ from app.agents import supabase_transformer_agent
 
 router = APIRouter()
 
+@router.get("/datasets/list")
+async def list_datasets():
+    # Stub: Replace with real dataset registry or Supabase query
+    print("Received request for /datasets/list")
+    datasets = [
+        {
+            "id": "demo",
+            "name": "Sample Deals Dataset",
+            "timestamp": "2025-06-01T12:00:00Z",
+            "file_type": "csv"
+        },
+        {
+            "id": "test2",
+            "name": "Q2 Opportunities",
+            "timestamp": "2025-05-15T09:30:00Z",
+            "file_type": "xlsx"
+        }
+    ]
+    return {"datasets": datasets}
+
 @router.post("/datasets/upload_dataset")
 async def upload_dataset(file: UploadFile = File(...)):
     filename = os.path.splitext(file.filename)[0]
