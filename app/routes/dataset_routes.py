@@ -11,27 +11,38 @@ from app.agents import supabase_transformer_agent
 
 router = APIRouter()
 
+# In-memory dataset registry for demonstration (replace with DB/Supabase in production)
+from datetime import datetime
+import uuid
+
+DATASET_REGISTRY = {}
+
+def canonicalize_datasets():
+    """
+    Return only the most current version of each dataset_id.
+    Prefer status 'ready', else most recent timestamp.
+    """
+    by_id = {}
+    for ds in DATASET_REGISTRY.values():
+        ds_id = ds["dataset_id"]
+        if ds_id not in by_id:
+            by_id[ds_id] = ds
+        else:
+            # Prefer 'ready' status, else latest timestamp
+            current = by_id[ds_id]
+            if ds["status"] == "ready" and current["status"] != "ready":
+                by_id[ds_id] = ds
+            elif ds["status"] == current["status"]:
+                if ds["created_at"] > current["created_at"]:
+                    by_id[ds_id] = ds
+    return list(by_id.values())
+
 @router.get("/datasets/list")
 async def list_datasets():
-    # Stub: Replace with real dataset registry or Supabase query
     print("Received request for /datasets/list")
-    datasets = [
-        {
-            "id": "demo",
-            "name": "Sample Deals Dataset",
-            "timestamp": "2025-06-01T12:00:00Z",
-            "file_type": "csv"
-        },
-        {
-            "id": "test2",
-            "name": "Q2 Opportunities",
-            "timestamp": "2025-05-15T09:30:00Z",
-            "file_type": "xlsx"
-        }
-    ]
+    datasets = canonicalize_datasets()
     return {"datasets": datasets}
 
-# Alias: GET /api/datasets and /api/datasets/ both return the same as /api/datasets/list
 @router.get("/")
 async def list_datasets_alias():
     print("Received request for /datasets (alias for /datasets/list)")
@@ -41,6 +52,10 @@ async def list_datasets_alias():
 async def upload_dataset(file: UploadFile = File(...)):
     filename = os.path.splitext(file.filename)[0]
     table_name = filename.lower().replace(" ", "_")
+    timestamp = datetime.utcnow().isoformat() + "Z"
+    file_type = os.path.splitext(file.filename)[1][1:]
+    file_size = 0
+    row_count = 0
 
     # Step 1: Read file
     if file.filename.endswith(".csv"):
@@ -52,6 +67,9 @@ async def upload_dataset(file: UploadFile = File(...)):
 
     # Step 2: Convert to list-of-dicts for the agent
     records = df.to_dict(orient="records")
+    row_count = len(records)
+    file.file.seek(0, 2)
+    file_size = file.file.tell()
 
     # Step 3: Infer schema and create table via agent
     schema = supabase_transformer_agent.infer_schema(records)
@@ -61,9 +79,31 @@ async def upload_dataset(file: UploadFile = File(...)):
     # Step 4: Insert data
     supabase_transformer_agent.insert_rows(table_name, records)
 
+    # Step 5: Register or update dataset in registry
+    # Use a stable dataset_id based on filename (could be hash or UUID in production)
+    dataset_id = f"{filename}".lower()
+    # If a dataset with same id and timestamp exists, update status; else create new
+    existing = [ds for ds in DATASET_REGISTRY.values() if ds["dataset_id"] == dataset_id and ds["created_at"] == timestamp]
+    if existing:
+        ds = existing[0]
+        ds["status"] = "ready"
+        ds["row_count"] = row_count
+        ds["file_size"] = file_size
+    else:
+        DATASET_REGISTRY[uuid.uuid4().hex] = {
+            "dataset_id": dataset_id,
+            "filename": file.filename,
+            "status": "ready",
+            "created_at": timestamp,
+            "row_count": row_count,
+            "file_size": file_size,
+            "file_type": file_type,
+            "used_by_modules": []
+        }
+
     return {
         "status": "success",
-        "rows_inserted": len(records),
+        "rows_inserted": row_count,
         "table": table_name,
         "columns": list(df.columns)
     }
