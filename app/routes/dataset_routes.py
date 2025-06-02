@@ -48,7 +48,8 @@ async def list_datasets_alias():
     print("Received request for /datasets (alias for /datasets/list)")
     return await list_datasets()
 
-@router.post("/datasets/upload_dataset")
+@router.post("/upload_dataset")
+@router.post("/upload-files")
 async def upload_dataset(file: UploadFile = File(...)):
     import os
     filename = os.path.splitext(file.filename)[0]
