@@ -4,7 +4,13 @@ import pandas as pd
 # Import the in-memory registry from dataset_routes for demo purposes
 from app.routes.dataset_routes import DATASET_REGISTRY
 
+import os
+import time
+
 router = APIRouter()
+
+# Track last analysis run (in-memory for demo)
+LAST_ANALYSIS_RUN = {"dataset_id": None, "timestamp": None}
 
 def load_dataset_by_id(dataset_id):
     # Try in-memory registry first
@@ -75,6 +81,9 @@ async def run_full_analysis(payload: dict):
         model_results = run_modeling_pipeline(df)
         evaluation = evaluate_models(model_results)
         markdown = compose_markdown_report(eda_results, model_results, evaluation)
+        # Log last analysis run
+        LAST_ANALYSIS_RUN["dataset_id"] = dataset_id
+        LAST_ANALYSIS_RUN["timestamp"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
         return {
             "status": "completed",
             "eda": eda_results,
@@ -82,5 +91,24 @@ async def run_full_analysis(payload: dict):
             "evaluation": evaluation,
             "markdown": markdown
         }
+    except Exception as e:
+        return {"status": "failed", "error": str(e)}
+
+@router.get("/logs")
+async def analysis_logs():
+    # List available dataset files
+    uploads_dir = "./data/uploads"
+    try:
+        files = []
+        if os.path.exists(uploads_dir):
+            for fname in os.listdir(uploads_dir):
+                if fname.endswith(".csv"):
+                    files.append(fname)
+        logs = {
+            "available_datasets": files,
+            "last_analysis_run": LAST_ANALYSIS_RUN
+        }
+        print(f"[LOGS] Analysis logs requested: {logs}")
+        return logs
     except Exception as e:
         return {"status": "failed", "error": str(e)}
