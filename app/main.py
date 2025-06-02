@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # Import routers (to be implemented in the routes package)
 from app.routes import auth_routes, lead_routes, insight_routes, utility_routes, connector_routes, webhook_routes
 from app.routes import dataset_routes
-from app.routes import auto_analysis_routes, strategy_routes, report_routes, forecast_routes
+from app.routes import auto_analysis_routes, strategy_routes, report_routes, forecast_routes, analysis_routes
 
 app = FastAPI(
     title="Lead Commander Backend",
@@ -41,6 +41,7 @@ api_router.include_router(auto_analysis_routes.router, tags=["ml"])
 api_router.include_router(strategy_routes.router, tags=["strategy"])
 api_router.include_router(report_routes.router, tags=["reports"])
 api_router.include_router(forecast_routes.router, tags=["forecast"])
+api_router.include_router(analysis_routes.router, prefix="/analysis", tags=["analysis"])
 
 # Mount the API router at /api
 app.include_router(api_router, prefix="/api")
