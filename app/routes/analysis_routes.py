@@ -7,15 +7,22 @@ from app.routes.dataset_routes import DATASET_REGISTRY
 router = APIRouter()
 
 def load_dataset_by_id(dataset_id):
-    # For demo: find the latest dataset with this id in the registry
+    # Try in-memory registry first
     for ds in DATASET_REGISTRY.values():
         if ds["dataset_id"] == dataset_id:
+            print(f"[LOAD] Dataset loaded from memory: {dataset_id}")
             # In production, load from disk or DB
             # Here, return a dummy DataFrame
             return pd.DataFrame({
                 "col1": [1, 2, 3],
                 "col2": ["a", "b", "c"]
             })
+    # Fallback: try loading from disk
+    import os
+    disk_path = f"./data/uploads/{dataset_id}.csv"
+    if os.path.exists(disk_path):
+        print(f"[LOAD] Dataset loaded from disk: {dataset_id}")
+        return pd.read_csv(disk_path)
     raise ValueError("Dataset not found")
 
 def run_eda_agent(df):

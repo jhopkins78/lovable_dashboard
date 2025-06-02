@@ -50,6 +50,7 @@ async def list_datasets_alias():
 
 @router.post("/datasets/upload_dataset")
 async def upload_dataset(file: UploadFile = File(...)):
+    import os
     filename = os.path.splitext(file.filename)[0]
     table_name = filename.lower().replace(" ", "_")
     timestamp = datetime.utcnow().isoformat() + "Z"
@@ -71,6 +72,13 @@ async def upload_dataset(file: UploadFile = File(...)):
     file.file.seek(0, 2)
     file_size = file.file.tell()
 
+    # Step 2.5: Save DataFrame to disk for persistence
+    dataset_id = f"{filename}".lower()
+    os.makedirs("./data/uploads", exist_ok=True)
+    disk_path = f"./data/uploads/{dataset_id}.csv"
+    df.to_csv(disk_path, index=False)
+    print(f"[UPLOAD] Dataset saved to disk: {disk_path}")
+
     # Step 3: Infer schema and create table via agent
     schema = supabase_transformer_agent.infer_schema(records)
     if not supabase_transformer_agent.check_table_exists(table_name):
@@ -81,8 +89,6 @@ async def upload_dataset(file: UploadFile = File(...)):
 
     # Step 5: Register or update dataset in registry
     # Use a stable dataset_id based on filename (could be hash or UUID in production)
-    dataset_id = f"{filename}".lower()
-    # If a dataset with same id and timestamp exists, update status; else create new
     existing = [ds for ds in DATASET_REGISTRY.values() if ds["dataset_id"] == dataset_id and ds["created_at"] == timestamp]
     if existing:
         ds = existing[0]
@@ -98,7 +104,8 @@ async def upload_dataset(file: UploadFile = File(...)):
             "row_count": row_count,
             "file_size": file_size,
             "file_type": file_type,
-            "used_by_modules": []
+            "used_by_modules": [],
+            "disk_path": disk_path
         }
 
     return {

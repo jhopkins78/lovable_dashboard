@@ -46,6 +46,15 @@ api_router.include_router(analysis_routes.router, prefix="/analysis", tags=["ana
 # Mount the API router at /api
 app.include_router(api_router, prefix="/api")
 
+# Log all registered routes on startup for confirmation
+@app.on_event("startup")
+async def log_routes():
+    print("=== Registered FastAPI Routes ===")
+    for route in app.routes:
+        if hasattr(route, "methods"):
+            print(f"{list(route.methods)} {route.path}")
+    print("=================================")
+
 # Root endpoint for health check (optional, /health is also available)
 @app.get("/")
 async def root():
