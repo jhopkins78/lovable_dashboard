@@ -2,24 +2,24 @@
 # lead_commander
 # retool_dashboard
 
-# 🧠 Lead Commander Backend
+# Lead Commander Backend
 
 An AI-powered backend platform that provides actionable business insights, lead evaluation, and financial forecasting using GPT-4 and Supabase logging. This project exposes RESTful API endpoints via FastAPI and logs all agent activity for transparency and analytics.
 
 ---
 
-## 🚀 Features
+## Features
 
-- ✅ GPT-4 integration for business insight generation
-- ✅ Lead scoring and enrichment from structured payloads
-- ✅ Lifetime value estimation based on customer metrics
-- ✅ Robust error handling and fallback responses
-- ✅ Automatic logging of all agent interactions to Supabase
-- ✅ Designed for integration with Retool, Supabase, and frontend dashboards
+- GPT-4 integration for business insight generation
+- Lead scoring and enrichment from structured payloads
+- Lifetime value estimation based on customer metrics
+- Robust error handling and fallback responses
+- Automatic logging of all agent interactions to Supabase
+- Designed for integration with Retool, Supabase, and frontend dashboards
 
 ---
 
-## 🧠 Agent Capabilities
+## Agent Capabilities
 
 | Agent                 | Endpoint                  | Description |
 |-----------------------|---------------------------|-------------|
@@ -36,7 +36,7 @@ Each agent includes:
 
 ---
 
-## 📦 Supabase Logging
+## Supabase Logging
 
 All agents write structured logs to a `agent_logs` table:
 
